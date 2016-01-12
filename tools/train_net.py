@@ -21,9 +21,6 @@ import numpy as np
 import sys
 
 def parse_args():
-    """
-    Parse input arguments
-    """
     parser = argparse.ArgumentParser(description='Train a Fast R-CNN network')
     parser.add_argument('--gpu', dest='gpu_id',
                         help='GPU device id to use [0]',
@@ -82,7 +79,7 @@ if __name__ == '__main__':
     print('Called with args:')
     print(args)
 
-    #import pdb; pdb.set_trace()
+    import pdb; pdb.set_trace()
     if args.cfg_file is not None:
         cfg_from_file(args.cfg_file)
     if args.set_cfgs is not None:
@@ -99,8 +96,8 @@ if __name__ == '__main__':
         caffe.set_random_seed(cfg.RNG_SEED)
 
     # set up caffe
-    caffe.set_mode_gpu()
     caffe.set_device(args.gpu_id)
+    caffe.set_mode_gpu()
 
     imdb, roidb = combined_roidb(args.imdb_name)
     print '{:d} roidb entries'.format(len(roidb))
