@@ -83,8 +83,10 @@ class RoIDataLayer(caffe.Layer):
     def setup(self, bottom, top):
         """Setup the RoIDataLayer."""
 
+        #import pdb; pdb.set_trace()
         # parse the layer parameter string, which must be valid YAML
-        layer_params = yaml.load(self.param_str_)
+        #layer_params = yaml.load(self.param_str_)
+        layer_params = yaml.load(self.param_str)
 
         self._num_classes = layer_params['num_classes']
 

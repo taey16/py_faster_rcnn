@@ -26,17 +26,19 @@ def parse_args():
                         help='GPU device id to use [0]',
                         default=0, type=int)
     parser.add_argument('--solver', dest='solver',
-                        help='solver prototxt',
-                        default=None, type=str)
+                        default='/storage/ImageNet/ILSVRC2012/model/vgg/faster_rcnn_end2end/prototxt/solver.prototxt',
+                        help='solver prototxt', type=str)
     parser.add_argument('--iters', dest='max_iters',
                         help='number of iterations to train',
-                        default=40000, type=int)
+                        default=70000, type=int)
     parser.add_argument('--weights', dest='pretrained_model',
                         help='initialize with pretrained model weights',
-                        default=None, type=str)
+                        default='/storage/ImageNet/ILSVRC2012/model/vgg/faster_rcnn_end2end/imagenet_models/VGG16.v2.caffemodel',
+                        type=str)
     parser.add_argument('--cfg', dest='cfg_file',
                         help='optional config file',
-                        default=None, type=str)
+                        default='/storage/ImageNet/ILSVRC2012/model/vgg/faster_rcnn_end2end/cfgs/faster_rcnn_end2end_train.yml', 
+                        type=str)
     parser.add_argument('--imdb', dest='imdb_name',
                         help='dataset to train on',
                         default='voc_2007_trainval', type=str)
@@ -79,7 +81,6 @@ if __name__ == '__main__':
     print('Called with args:')
     print(args)
 
-    import pdb; pdb.set_trace()
     if args.cfg_file is not None:
         cfg_from_file(args.cfg_file)
     if args.set_cfgs is not None:
@@ -99,6 +100,7 @@ if __name__ == '__main__':
     caffe.set_device(args.gpu_id)
     caffe.set_mode_gpu()
 
+    #import pdb; pdb.set_trace()
     imdb, roidb = combined_roidb(args.imdb_name)
     print '{:d} roidb entries'.format(len(roidb))
 

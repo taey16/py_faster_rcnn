@@ -27,6 +27,9 @@ __C = edict()
 #   from fast_rcnn_config import cfg
 cfg = __C
 
+
+__C.PHASE = 'TRAIN'
+
 #
 # Training options
 #
@@ -199,6 +202,7 @@ __C.USE_GPU_NMS = True
 __C.GPU_ID = 0
 
 
+
 def get_output_dir(imdb, net):
     """Return the directory where experimental artifacts are placed.
 
@@ -253,6 +257,7 @@ def cfg_from_file(filename):
 
 def cfg_from_list(cfg_list):
     """Set config keys via list (e.g., from command line)."""
+    #import pdb; pdb.set_trace()
     from ast import literal_eval
     assert len(cfg_list) % 2 == 0
     for k, v in zip(cfg_list[0::2], cfg_list[1::2]):
