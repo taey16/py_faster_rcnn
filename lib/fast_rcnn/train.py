@@ -13,6 +13,7 @@ import roi_data_layer.roidb as rdl_roidb
 from utils.timer import Timer
 import numpy as np
 import os
+import sys
 
 from caffe.proto import caffe_pb2
 import google.protobuf as pb2
@@ -51,6 +52,7 @@ class SolverWrapper(object):
             pb2.text_format.Merge(f.read(), self.solver_param)
 
         self.solver.net.layers[0].set_roidb(roidb)
+        sys.stdout.flush()
 
     def snapshot(self):
         """Take a snapshot of the network after unnormalizing the learned
@@ -86,6 +88,7 @@ class SolverWrapper(object):
 
         net.save(str(filename))
         print 'Wrote snapshot to: {:s}'.format(filename)
+        sys.stdout.flush()
 
         if scale_bbox_params:
             # restore net to original state
@@ -103,8 +106,8 @@ class SolverWrapper(object):
             timer.tic()
             self.solver.step(1)
             timer.toc()
-            if self.solver.iter % (10 * self.solver_param.display) == 0:
-                print 'speed: {:.3f}s / iter'.format(timer.average_time)
+            #if self.solver.iter % (10 * self.solver_param.display) == 0:
+            #    print 'speed: {:.3f}s / iter'.format(timer.average_time)
 
             if self.solver.iter % cfg.TRAIN.SNAPSHOT_ITERS == 0:
                 last_snapshot_iter = self.solver.iter
@@ -124,6 +127,7 @@ def get_training_roidb(imdb):
     print 'Preparing training data...'
     rdl_roidb.prepare_roidb(imdb)
     print 'done'
+    sys.stdout.flush()
 
     return imdb.roidb
 
@@ -135,5 +139,6 @@ def train_net(solver_prototxt, roidb, output_dir,
 
     print 'Solving...'
     model_paths = sw.train_model(max_iters)
-    print 'done solving'
+    print 'done'
+    sys.stdout.flush()
     return model_paths
