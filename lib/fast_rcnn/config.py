@@ -28,12 +28,13 @@ __C = edict()
 cfg = __C
 
 
-__C.PHASE = 'TRAIN'
+# Specify current phase
+# refer to rpn/proposal_layer.py:65
+__C.PHASE = 'Fill this in your config (i.e. xxx.yaml)'
 
 #
 # Training options
 #
-
 __C.TRAIN = edict()
 
 # Scales to use during training (can list multiple scales)
@@ -55,8 +56,8 @@ __C.TRAIN.FG_FRACTION = 0.25
 # Overlap threshold for a ROI to be considered foreground (if >= FG_THRESH)
 __C.TRAIN.FG_THRESH = 0.5
 
-# Overlap threshold for a ROI to be considered background (class = 0 if
-# overlap in [LO, HI))
+# Overlap threshold for a ROI to be considered background 
+# (class = 0 if overlap in [LO, HI))
 __C.TRAIN.BG_THRESH_HI = 0.5
 __C.TRAIN.BG_THRESH_LO = 0.1
 
@@ -130,7 +131,6 @@ __C.TRAIN.RPN_POSITIVE_WEIGHT = -1.0
 #
 # Testing options
 #
-
 __C.TEST = edict()
 
 # Scales to use during testing (can list multiple scales)
