@@ -45,7 +45,8 @@ class SolverWrapper(object):
         if pretrained_model is not None:
             print ('Loading pretrained model '
                    'weights from {:s}').format(pretrained_model)
-            self.solver.net.copy_from(pretrained_model)
+            #self.solver.net.copy_from(pretrained_model)
+            self.solver.net.copy_from(str(pretrained_model))
 
         self.solver_param = caffe_pb2.SolverParameter()
         with open(solver_prototxt, 'rt') as f:
@@ -138,6 +139,7 @@ def train_net(solver_prototxt, roidb, output_dir,
                        pretrained_model=pretrained_model)
 
     print 'Solving...'
+    sys.stdout.flush()
     model_paths = sw.train_model(max_iters)
     print 'done'
     sys.stdout.flush()

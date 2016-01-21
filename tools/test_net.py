@@ -27,12 +27,16 @@ def parse_args():
                         default=0, type=int)
     parser.add_argument('--def', dest='prototxt',
                         help='prototxt file defining the network',
-                        default=None, type=str)
+                        default='/storage/ImageNet/ILSVRC2012/model/vgg/faster_rcnn_end2end/prototxt/test.prototxt', 
+                        type=str)
     parser.add_argument('--net', dest='caffemodel',
                         help='model to test',
-                        default=None, type=str)
+                        default='output/EXP_END2END_with_acc/voc_2007_trainval/vgg16_faster_rcnn_iter_70000.caffemodel', 
+                        type=str)
     parser.add_argument('--cfg', dest='cfg_file',
-                        help='optional config file', default=None, type=str)
+                        help='optional config file', 
+                        default='/storage/ImageNet/ILSVRC2012/model/vgg/faster_rcnn_end2end/cfgs/faster_rcnn_end2end_test.yml', 
+                        type=str)
     parser.add_argument('--wait', dest='wait',
                         help='wait until net file exists',
                         default=True, type=bool)
@@ -45,14 +49,15 @@ def parse_args():
                         help='set config keys', default=None,
                         nargs=argparse.REMAINDER)
 
-    if len(sys.argv) == 1:
-        parser.print_help()
-        sys.exit(1)
+    #if len(sys.argv) == 1:
+    #    parser.print_help()
+    #    sys.exit(1)
 
     args = parser.parse_args()
     return args
 
 if __name__ == '__main__':
+    import pdb; pdb.set_trace()
     args = parse_args()
 
     print('Called with args:')
@@ -82,4 +87,5 @@ if __name__ == '__main__':
     if not cfg.TEST.HAS_RPN:
         imdb.set_proposal_method(cfg.TEST.PROPOSAL_METHOD)
 
+    import pdb; pdb.set_trace()
     test_net(net, imdb)

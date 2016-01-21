@@ -74,6 +74,10 @@ __C.TRAIN.BBOX_THRESH = 0.5
 # Iterations between snapshots
 __C.TRAIN.SNAPSHOT_ITERS = 10000
 
+
+__C.TRAIN.PROTOTXT = ''
+__C.TRAIN.CAFFE_MODEL = ''
+
 # solver.prototxt specifies the snapshot path prefix, this adds an optional
 # infix to yield the path: <prefix>[_<infix>]_iters_XYZ.caffemodel
 __C.TRAIN.SNAPSHOT_INFIX = ''
@@ -166,6 +170,11 @@ __C.TEST.RPN_POST_NMS_TOP_N = 300
 # Proposal height and width both need to be greater than RPN_MIN_SIZE (at orig image scale)
 __C.TEST.RPN_MIN_SIZE = 16
 
+__C.TEST.PROTOTXT = ''
+__C.TEST.CAFFE_MODEL = ''
+
+__C.TEST.CONF_THRESH = 0.8
+__C.TEST.NMS_THRESH = 0.3
 
 #
 # MISC
