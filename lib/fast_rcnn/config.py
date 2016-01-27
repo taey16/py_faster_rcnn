@@ -75,7 +75,7 @@ __C.TRAIN.BBOX_THRESH = 0.5
 __C.TRAIN.SNAPSHOT_ITERS = 10000
 
 
-__C.TRAIN.PROTOTXT = ''
+__C.TRAIN.SOLVER_PROTOTXT = ''
 __C.TRAIN.CAFFE_MODEL = ''
 
 # solver.prototxt specifies the snapshot path prefix, this adds an optional

@@ -57,6 +57,7 @@ def parse_args():
     return args
 
 def combined_roidb(imdb_names):
+    print('===> Start compined_roidb in train_net.py')
     def get_roidb(imdb_name):
         imdb = get_imdb(imdb_name)
         print 'Loaded dataset `{:s}` for training'.format(imdb.name)
@@ -73,6 +74,8 @@ def combined_roidb(imdb_names):
         imdb = datasets.imdb(imdb_names)
     else:
         imdb = get_imdb(imdb_names)
+
+    print('===> Start compined_roidb in train_net.py. done')
     return imdb, roidb
 
 if __name__ == '__main__':
@@ -81,12 +84,11 @@ if __name__ == '__main__':
     print('Called with args:')
     print(args)
 
+    #import pdb; pdb.set_trace()
     if args.cfg_file is not None:
         cfg_from_file(args.cfg_file)
     if args.set_cfgs is not None:
         cfg_from_list(args.set_cfgs)
-
-    cfg.GPU_ID = args.gpu_id
 
     print('Using config:')
     pprint.pprint(cfg)
@@ -97,7 +99,7 @@ if __name__ == '__main__':
         caffe.set_random_seed(cfg.RNG_SEED)
 
     # set up caffe
-    caffe.set_device(args.gpu_id)
+    caffe.set_device(cfg.GPU_ID)
     caffe.set_mode_gpu()
 
     #import pdb; pdb.set_trace()
@@ -108,6 +110,6 @@ if __name__ == '__main__':
     print 'Output will be saved to `{:s}`'.format(output_dir)
     sys.stdout.flush()
 
-    train_net(args.solver, roidb, output_dir,
+    train_net(cfg.TRAIN.SOLVER_PROTOTXT, roidb, output_dir,
               pretrained_model=args.pretrained_model,
               max_iters=args.max_iters)

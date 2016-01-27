@@ -7,7 +7,8 @@
 
 import os
 import os.path as osp
-import PIL
+import cv2
+import cPickle
 from utils.cython_bbox import bbox_overlaps
 import numpy as np
 import scipy.sparse
@@ -17,6 +18,7 @@ class imdb(object):
     """Image database."""
 
     def __init__(self, name):
+        print('===> Start imdb.__init__')
         self._name = name
         self._num_classes = 0
         self._classes = []
@@ -26,6 +28,7 @@ class imdb(object):
         self._roidb_handler = self.default_roidb
         # Use this dict for storing dataset specific config options
         self.config = {}
+        print('===> Start imdb.__init__. done')
 
     @property
     def name(self):
@@ -52,8 +55,11 @@ class imdb(object):
         self._roidb_handler = val
 
     def set_proposal_method(self, method):
-        method = eval('self.' + method + '_roidb')
+        proposal_method = 'self.' + method + '_roidb'
+        method = eval(proposal_method)
+        print('===> imdb.set_proposal_method; %s' % proposal_method )
         self.roidb_handler = method
+        print('===> imdb.set_proposal_method. done')
 
     @property
     def roidb(self):
@@ -95,23 +101,73 @@ class imdb(object):
         """
         raise NotImplementedError
 
+
     def append_flipped_images(self):
+        print('===> Start imdb.append_flipped_images')
         num_images = self.num_images
-        widths = [PIL.Image.open(self.image_path_at(i)).size[0]
-                  for i in xrange(num_images)]
+
+        cache_file = os.path.join(self.cache_path, self.name + '_image_widths.pkl')
+        if os.path.exists(cache_file):
+            with open(cache_file,'rb') as fid:
+                widths = cPickle.load(fid)
+            print '{} image widths loaded form {}'.format(self.name, cache_file)
+        else:
+            #widths = [cv2.imread(self.image_path_at(i)).shape[1] for i in xrange(num_images)]
+            widths = []
+            for i in xrange(num_images):
+              try:
+                width = cv2.imread(self.image_path_at(i)).shape[1]
+                widths.append(width)
+                if i % 1000 == 0: print('imdb.append_flipped_images %08d completed' % i)
+              except Exception as err:
+                print('%s' % self.image_path_at(i))
+                print(err)
+            with open(cache_file,'wb') as fid:
+                cPickle.dump(widths, fid, cPickle.HIGHEST_PROTOCOL)
+            print 'wrote image widths to {}'.format(self.name, cache_file)
+
+        roidb_disk = True if type(self.roidb[0]) == str else False
         for i in xrange(num_images):
-            boxes = self.roidb[i]['boxes'].copy()
-            oldx1 = boxes[:, 0].copy()
-            oldx2 = boxes[:, 2].copy()
-            boxes[:, 0] = widths[i] - oldx2 - 1
-            boxes[:, 2] = widths[i] - oldx1 - 1
-            assert (boxes[:, 2] >= boxes[:, 0]).all()
-            entry = {'boxes' : boxes,
-                     'gt_overlaps' : self.roidb[i]['gt_overlaps'],
-                     'gt_classes' : self.roidb[i]['gt_classes'],
-                     'flipped' : True}
-            self.roidb.append(entry)
+            if roidb_disk:
+                with open(self.roidb[i], 'rb') as fid:
+                    orig_roidb = cPickle.load(fid)
+
+                entry = self._roidb_entry_flipped_copy(orig_roidb, widths[i])
+                entry = imdb.enrich_roidb_element(self.image_path_at(i), entry)
+
+                flip_cache_file = os.path.join(os.path.dirname(self.roidb[i]), 'flipped',
+                                                    self.image_index[i]+'.pkl')
+
+                if not os.path.exists(os.path.dirname(flip_cache_file)):
+                    os.makedirs(os.path.dirname(flip_cache_file))
+
+                self.roidb.append(flip_cache_file)
+                with open(flip_cache_file, 'wb') as fid:
+                    cPickle.dump(entry, fid, cPickle.HIGHEST_PROTOCOL)
+            else:
+                entry = self._roidb_entry_flipped_copy(self.roidb[i], widths[i])
+                self.roidb.append(entry)
         self._image_index = self._image_index * 2
+        print('===> Start imdb.append_flipped_images. done')
+
+    def _roidb_entry_flipped_copy(self, orig_roidb, width):
+        boxes = orig_roidb['boxes'].copy()
+        oldx1 = boxes[:, 0].copy()
+        oldx2 = boxes[:, 2].copy()
+
+        ex_idx = np.where(oldx2>=width)
+        oldx2[ex_idx] = width-1
+
+        boxes[:, 0] = width - oldx2 - 1
+        boxes[:, 2] = width - oldx1 - 1
+        assert (boxes[:, 2] >= boxes[:, 0]).all()
+        entry = {'boxes' : boxes,
+                 'gt_overlaps' : orig_roidb['gt_overlaps'],
+                 'gt_classes' : orig_roidb['gt_classes'],
+                 'flipped' : True}
+
+        return entry
+
 
     def evaluate_recall(self, candidate_boxes=None, ar_thresh=0.5):
         # Record max overlap value for each gt box

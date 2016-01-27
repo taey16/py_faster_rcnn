@@ -12,6 +12,8 @@ from fast_rcnn.config import cfg
 from fast_rcnn.bbox_transform import bbox_transform
 from utils.cython_bbox import bbox_overlaps
 import PIL
+import cv2
+
 
 def prepare_roidb(imdb):
     """Enrich the imdb's roidb by adding some derived quantities that
@@ -20,13 +22,13 @@ def prepare_roidb(imdb):
     each ground-truth box. The class with maximum overlap is also
     recorded.
     """
-    sizes = [PIL.Image.open(imdb.image_path_at(i)).size
-             for i in xrange(imdb.num_images)]
+    print('===> Start roidb.prepare_roidb')
     roidb = imdb.roidb
     for i in xrange(len(imdb.image_index)):
         roidb[i]['image'] = imdb.image_path_at(i)
-        roidb[i]['width'] = sizes[i][0]
-        roidb[i]['height'] = sizes[i][1]
+        height, width, channel = cv2.imread(imdb.image_path_at(i)).shape
+        roidb[i]['width'] = width #sizes[i][0]
+        roidb[i]['height'] = height #sizes[i][1]
         # need gt_overlaps as a dense array for argmax
         gt_overlaps = roidb[i]['gt_overlaps'].toarray()
         # max overlap with gt over classes (columns)
@@ -42,6 +44,10 @@ def prepare_roidb(imdb):
         # max overlap > 0 => class should not be zero (must be a fg class)
         nonzero_inds = np.where(max_overlaps > 0)[0]
         assert all(max_classes[nonzero_inds] != 0)
+
+        if i % 1000 == 0: print('roidb.prepare_roidb %08d completed' % i)
+    print('===> Start roidb.prepare_roidb. done')
+
 
 def add_bbox_regression_targets(roidb):
     """Add information needed to train bounding-box regressors."""
@@ -128,3 +134,4 @@ def _compute_targets(rois, overlaps, labels):
     targets[ex_inds, 0] = labels[ex_inds]
     targets[ex_inds, 1:] = bbox_transform(ex_rois, gt_rois)
     return targets
+

@@ -71,6 +71,7 @@ class SolverWrapper(object):
             orig_1 = net.params['bbox_pred'][1].data.copy()
 
             # scale and shift with bbox reg unnormalization; then save snapshot
+            #import pdb; pdb.set_trace()
             net.params['bbox_pred'][0].data[...] = \
                     (net.params['bbox_pred'][0].data *
                      self.bbox_stds[:, np.newaxis])
@@ -120,16 +121,19 @@ class SolverWrapper(object):
 
 def get_training_roidb(imdb):
     """Returns a roidb (Region of Interest database) for use in training."""
+    print('===> Start get_training_roidb in train.py')
     if cfg.TRAIN.USE_FLIPPED:
         print 'Appending horizontally-flipped training examples...'
         imdb.append_flipped_images()
-        print 'done'
+        #print 'done'
 
-    print 'Preparing training data...'
-    rdl_roidb.prepare_roidb(imdb)
-    print 'done'
+    if type(imdb.roidb[0])!=str:
+      print 'Preparing training data...'
+      rdl_roidb.prepare_roidb(imdb)
+      #print 'done'
+
+    print('===> Start get_training_roidb in train.py')
     sys.stdout.flush()
-
     return imdb.roidb
 
 def train_net(solver_prototxt, roidb, output_dir,
